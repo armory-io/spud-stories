@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+   branches:
+     - master
+
+jobs:
+  main:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Fetch full history
+      run: git fetch --prune --tags --unshallow
+
+    - name: Compute Short SHA
+      id: sha_short
+      run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+    - name: Build & Push Docker Image
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USER }}
+        password: ${{ secrets.DOCKERHUB_PASS }}
+        registry: index.docker.io
+        repository: armory/spud-stories
+        add_git_labels: true
+        tags: sha-${{ steps.sha_short.outputs.sha_short }}
+
+
