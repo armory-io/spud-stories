@@ -53,5 +53,7 @@ jobs:
         BASEPATH: infra
         IMAGE_NAME: armory/spud-stories:sha-${{ steps.sha_short.outputs.sha_short }}
         WITHPUSH: yes
+        GIT_USER: ArmoryBot
+        GIT_EMAIL: armoryspinnaker@armory.io
       run: |
         ./bin/update-infra.sh
