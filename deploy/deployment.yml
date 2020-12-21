@@ -20,5 +20,15 @@ spec:
       containers:
         - name: spud-stories
           image: armory/spud-stories:v1
+          args:
+            - --config
+            - /opt/spud-stories/config/spudstories.yml
           ports:
             - containerPort: 3000
+          volumeMounts:
+            - mountPath: /opt/spud-stories/config
+              name: conig
+      volumes:
+        - name: config
+          configMap:
+            name: spud-stories-config
