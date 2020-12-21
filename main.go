@@ -20,7 +20,7 @@ func (s *SpudStoriesAPIConfig) EnsureDefaults() {
 		s.Objects = 1000
 	}
 	if s.Size == 0 {
-		s.Size = 1000
+		s.Size = 1024
 	}
 }
 
