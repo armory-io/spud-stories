@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"flag"
+	"io/ioutil"
 	"log"
 	"net/http"
+
+	"gopkg.in/yaml.v2"
 )
 
 type SpudStoriesAPIConfig struct {
@@ -11,18 +15,41 @@ type SpudStoriesAPIConfig struct {
 	Size    int `json:"size" yaml:"size"`
 }
 
+func (s *SpudStoriesAPIConfig) EnsureDefaults() {
+	if s.Objects == 0 {
+		s.Objects = 1000
+	}
+	if s.Size == 0 {
+		s.Size = 1000
+	}
+}
+
 type SpudStoriesAPI struct {
-	config SpudStoriesAPIConfig
+	config *SpudStoriesAPIConfig
 }
 
 func NewSpudStoriesAPI(configPath string) (*SpudStoriesAPI, error) {
+	c, err := parseConfig(configPath)
+	if err != nil {
+		return nil, err
+	}
+	c.EnsureDefaults()
 	// TODO - make configuration dynamic
 	return &SpudStoriesAPI{
-		config: SpudStoriesAPIConfig{
-			Objects: 1000,
-			Size:    1000,
-		},
+		config: c,
 	}, nil
+}
+
+func parseConfig(configPath string) (*SpudStoriesAPIConfig, error) {
+	b, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+	var config SpudStoriesAPIConfig
+	if err := yaml.NewDecoder(bytes.NewReader(b)).Decode(&config); err != nil {
+		return nil, err
+	}
+	return &config, nil
 }
 
 func (s *SpudStoriesAPI) RegisterHandlers(mux *http.ServeMux) {
@@ -40,18 +67,25 @@ func (s *SpudStoriesAPI) RegisterHandlers(mux *http.ServeMux) {
 }
 
 func main() {
-	var addr string
+	var (
+		addr, configPath string
+	)
 	flag.StringVar(&addr, "addr", ":3000", "server address")
+	flag.StringVar(&configPath, "config", "spudstories.yml", "configuration path")
 	flag.Parse()
 
 	mux := http.NewServeMux()
 
-	api := &SpudStoriesAPI{}
+	api, err := NewSpudStoriesAPI(configPath)
+	if err != nil {
+		log.Fatalf("failed to create new spudstories server: %s", err.Error())
+	}
+
 	api.RegisterHandlers(mux)
 
 	s := &http.Server{Addr: addr, Handler: mux}
 
-	log.Println("starting spud-stories server. enjoy your 'taters.")
+	log.Printf("starting spud-stories server on %s. enjoy your 'taters.", addr)
 	if err := s.ListenAndServe(); err != http.ErrServerClosed {
 		log.Fatalf("server closed unexpectedly: %s", err.Error())
 	}
