@@ -27,7 +27,7 @@ spec:
             - containerPort: 3000
           volumeMounts:
             - mountPath: /opt/spud-stories/config
-              name: conig
+              name: config
       volumes:
         - name: config
           configMap:
