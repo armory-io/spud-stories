@@ -41,7 +41,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: armory-io/spud-stories-infra
-        ref: HEAD
+        ref: master
         path: infra
         token: ${{ secrets.EXTERNAL_GITHUB_TOKEN }}
 
