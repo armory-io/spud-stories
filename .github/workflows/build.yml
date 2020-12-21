@@ -40,7 +40,7 @@ jobs:
     - name: Checkout Infra Repository
       uses: actions/checkout@v2
       with:
-        repository: https://github.com/armory-io/spud-stories-infra
+        repository: armory-io/spud-stories-infra
         ref: HEAD
         path: infra
         token: ${{ secrets.EXTERNAL_GITHUB_TOKEN }}
