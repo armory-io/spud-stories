@@ -29,4 +29,17 @@ jobs:
         add_git_labels: true
         tags: sha-${{ steps.sha_short.outputs.sha_short }}
 
+    - name: Checkout Infra Repository
+      uses: actions/checkout@v2
+      with:
+        repository: https://github.com/armory-io/spud-stories-infra
+        ref: HEAD
+        path: infra
+        token: ${{ secrets.EXTERNAL_GITHUB_TOKEN }}
 
+    - name: Update Infra Repository
+      env:
+        BASEPATH: infra
+        IMAGE_NAME: armory/spud-stories:sha-${{ steps.sha_short.outputs.sha_short }}
+      runs: |
+        ./bin/update-infra.sh
