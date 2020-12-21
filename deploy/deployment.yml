@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spud-stories
+  labels:
+    app: spud-stories
+    environment: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: spud-stories
+      environment: production
+  template:
+    metadata:
+      labels:
+        app: spud-stories
+        environment: production
+    spec:
+      containers:
+        - name: spud-stories
+          image: armory/spud-stories:v1
+          ports:
+            - containerPort: 3000
