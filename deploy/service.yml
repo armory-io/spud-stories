@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: spud-stories
 spec:
+  type: LoadBalancer
   selector:
     app: spud-stories
     environment: production
