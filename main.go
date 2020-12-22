@@ -25,18 +25,14 @@ func (s *SpudStoriesAPIConfig) EnsureDefaults() {
 }
 
 type SpudStoriesAPI struct {
-	config *SpudStoriesAPIConfig
+	objectSize int
+	numObjects int
 }
 
-func NewSpudStoriesAPI(configPath string) (*SpudStoriesAPI, error) {
-	c, err := parseConfig(configPath)
-	if err != nil {
-		return nil, err
-	}
-	c.EnsureDefaults()
-	// TODO - make configuration dynamic
+func NewSpudStoriesAPI(objectSize, numObjects int) (*SpudStoriesAPI, error) {
 	return &SpudStoriesAPI{
-		config: c,
+		objectSize: objectSize,
+		numObjects: numObjects,
 	}, nil
 }
 
@@ -55,10 +51,10 @@ func parseConfig(configPath string) (*SpudStoriesAPIConfig, error) {
 func (s *SpudStoriesAPI) RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// create N maps with byte slices of M
-		log.Printf("creating %d slices of size %d", s.config.Objects, s.config.Size)
+		log.Printf("creating %d slices of size %d", s.numObjects, s.objectSize)
 		h := map[int][]byte{}
-		for i := 0; i < s.config.Objects; i++ {
-			h[i] = make([]byte, s.config.Size)
+		for i := 0; i < s.numObjects; i++ {
+			h[i] = make([]byte, s.objectSize)
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Header().Add("Content-Type", "application/json")
@@ -68,15 +64,17 @@ func (s *SpudStoriesAPI) RegisterHandlers(mux *http.ServeMux) {
 
 func main() {
 	var (
-		addr, configPath string
+		addr                   string
+		numObjects, objectSize int
 	)
 	flag.StringVar(&addr, "addr", ":3000", "server address")
-	flag.StringVar(&configPath, "config", "spudstories.yml", "configuration path")
+	flag.IntVar(&numObjects, "num-objects", 1000, "number of objects")
+	flag.IntVar(&objectSize, "object-size", 1024, "fixed size for each object")
 	flag.Parse()
 
 	mux := http.NewServeMux()
 
-	api, err := NewSpudStoriesAPI(configPath)
+	api, err := NewSpudStoriesAPI(objectSize, numObjects)
 	if err != nil {
 		log.Fatalf("failed to create new spudstories server: %s", err.Error())
 	}
