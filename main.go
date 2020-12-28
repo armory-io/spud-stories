@@ -11,7 +11,7 @@ func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// create N maps with byte slices of M
 		dev := rand.Intn(deviation) + objectSize
-		log.Printf("creating %d slices of standard size:%d with deviation: %d", numObjects, objectSize, dev)
+		log.Printf("creating %d slices of standard size:%d with total size deviation: %d", numObjects, objectSize, dev)
 		h := map[int][]byte{}
 		for i := 0; i < numObjects; i++ {
 			h[i] = make([]byte, dev)
