@@ -1,60 +1,20 @@
 package main
 
 import (
-	"bytes"
 	"flag"
-	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
-
-	"gopkg.in/yaml.v2"
 )
 
-type SpudStoriesAPIConfig struct {
-	Objects int `json:"objects" yaml:"objects"`
-	Size    int `json:"size" yaml:"size"`
-}
-
-func (s *SpudStoriesAPIConfig) EnsureDefaults() {
-	if s.Objects == 0 {
-		s.Objects = 1000
-	}
-	if s.Size == 0 {
-		s.Size = 1024
-	}
-}
-
-type SpudStoriesAPI struct {
-	objectSize int
-	numObjects int
-}
-
-func NewSpudStoriesAPI(objectSize, numObjects int) (*SpudStoriesAPI, error) {
-	return &SpudStoriesAPI{
-		objectSize: objectSize,
-		numObjects: numObjects,
-	}, nil
-}
-
-func parseConfig(configPath string) (*SpudStoriesAPIConfig, error) {
-	b, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		return nil, err
-	}
-	var config SpudStoriesAPIConfig
-	if err := yaml.NewDecoder(bytes.NewReader(b)).Decode(&config); err != nil {
-		return nil, err
-	}
-	return &config, nil
-}
-
-func (s *SpudStoriesAPI) RegisterHandlers(mux *http.ServeMux) {
+func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// create N maps with byte slices of M
-		log.Printf("creating %d slices of size %d", s.numObjects, s.objectSize)
+		dev := rand.Intn(deviation) + objectSize
+		log.Printf("creating %d slices of standard size:%d with total size deviation: %d", numObjects, objectSize, dev)
 		h := map[int][]byte{}
-		for i := 0; i < s.numObjects; i++ {
-			h[i] = make([]byte, s.objectSize)
+		for i := 0; i < numObjects; i++ {
+			h[i] = make([]byte, dev)
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Header().Add("Content-Type", "application/json")
@@ -62,24 +22,22 @@ func (s *SpudStoriesAPI) RegisterHandlers(mux *http.ServeMux) {
 	})
 }
 
+var (
+	addr                              string
+	numObjects, objectSize, deviation int
+)
+
 func main() {
-	var (
-		addr                   string
-		numObjects, objectSize int
-	)
+
 	flag.StringVar(&addr, "addr", ":3000", "server address")
 	flag.IntVar(&numObjects, "num-objects", 1000, "number of objects")
+	flag.IntVar(&deviation, "deviation", 1024, "size by which to deviate the object size")
 	flag.IntVar(&objectSize, "object-size", 1024, "fixed size for each object")
 	flag.Parse()
 
 	mux := http.NewServeMux()
 
-	api, err := NewSpudStoriesAPI(objectSize, numObjects)
-	if err != nil {
-		log.Fatalf("failed to create new spudstories server: %s", err.Error())
-	}
-
-	api.RegisterHandlers(mux)
+	RegisterHandlers(mux)
 
 	s := &http.Server{Addr: addr, Handler: mux}
 
