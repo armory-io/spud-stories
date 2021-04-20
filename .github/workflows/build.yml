@@ -50,7 +50,7 @@ jobs:
         namespace: 'ethan-dev'
         images: 'armory/spud-stories:sha-${{ steps.sha_short.outputs.sha_short }}'
         manifests: |
-            deployment.yaml
-            service.yaml
+            deploy/deployment.yaml
+            deploy/service.yaml
         strategy: blue-green
         route-method: service # should be the same as the value when action was deploy
