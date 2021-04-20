@@ -8,11 +8,7 @@ metadata:
 spec:
   revisionHistoryLimit: 3
   minReadySeconds: 30
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: "5%"
-      maxUnavailable: "5%"
+  strategy: {}
   replicas: 2
   selector:
     matchLabels:

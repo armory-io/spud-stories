@@ -39,6 +39,7 @@ jobs:
       with:
        push: true
        tags: armory/spud-stories:sha-${{ steps.sha_short.outputs.sha_short }}
+       build-args: APP_VERSION=${{ steps.sha_short.outputs.sha_short }}
 
     - uses: Azure/k8s-set-context@v1
       with:
