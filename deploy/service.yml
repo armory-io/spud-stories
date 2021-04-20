@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spud-stories
+spec:
+  type: ClusterIP
+  selector:
+    app: spud-stories
+    environment: dev
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

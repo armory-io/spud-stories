@@ -40,20 +40,17 @@ jobs:
        push: true
        tags: armory/spud-stories:sha-${{ steps.sha_short.outputs.sha_short }}
 
-    - name: Checkout Infra Repository
-      uses: actions/checkout@v2
+    - uses: Azure/k8s-set-context@v1
       with:
-        repository: armory-io/spud-stories-infra
-        ref: master
-        path: infra
-        token: ${{ secrets.EXTERNAL_GITHUB_TOKEN }}
+        kubeconfig: ${{ secrets.DEV_KUBECONFIG }}
 
-    - name: Update Infra Repository
-      env:
-        BASEPATH: infra
-        IMAGE_NAME: armory/spud-stories:sha-${{ steps.sha_short.outputs.sha_short }}
-        WITHPUSH: yes
-        GIT_USER: ArmoryBot
-        GIT_EMAIL: armoryspinnaker@armory.io
-      run: |
-        ./bin/update-infra.sh
+    - name: Deploy to Dev
+      uses: Azure/k8s-deploy@v1.4
+      with:
+        namespace: 'ethan-dev'
+        images: 'armory/spud-stories:sha-${{ steps.sha_short.outputs.sha_short }}'
+        manifests: |
+            deployment.yaml
+            service.yaml
+        strategy: blue-green
+        route-method: service # should be the same as the value when action was deploy

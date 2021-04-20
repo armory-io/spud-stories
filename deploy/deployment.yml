@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spud-stories
+  labels:
+    app: spud-stories
+    environment: dev
+spec:
+  revisionHistoryLimit: 3
+  minReadySeconds: 30
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: "5%"
+      maxUnavailable: "5%"
+  replicas: 6
+  selector:
+    matchLabels:
+      app: spud-stories
+      environment: dev
+  template:
+    metadata:
+      labels:
+        app: spud-stories
+        environment: dev
+    spec:
+      containers:
+        - name: spud-stories
+          image: armory/spud-stories:sha-87d1564
+          args:
+            - --num-objects
+            - "16000"
+            - --object-size
+            - "1024"
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+          resources:
+            limits:
+              cpu: "2048m"
+              memory: "1028Mi"
