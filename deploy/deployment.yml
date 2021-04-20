@@ -13,7 +13,7 @@ spec:
     rollingUpdate:
       maxSurge: "5%"
       maxUnavailable: "5%"
-  replicas: 6
+  replicas: 2
   selector:
     matchLabels:
       app: spud-stories
