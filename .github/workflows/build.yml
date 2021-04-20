@@ -54,3 +54,4 @@ jobs:
             deploy/service.yml
         strategy: blue-green
         route-method: service # should be the same as the value when action was deploy
+        version-switch-buffer: 5

@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+var version = "dev"
+
 func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// create N maps with byte slices of M
@@ -24,6 +26,10 @@ func RegisterHandlers(mux *http.ServeMux) {
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, `{"status": "healthy"}`)
+	})
+
+	mux.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, `{"version": "%s"}`, version)
 	})
 }
 
