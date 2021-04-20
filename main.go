@@ -29,6 +29,7 @@ func RegisterHandlers(mux *http.ServeMux) {
 	})
 
 	mux.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "application/json")
 		fmt.Fprintf(w, `{"version": "%s"}`, version)
 	})
 }
